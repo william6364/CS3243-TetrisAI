@@ -1,11 +1,11 @@
 This is a basic Tetris AI simulation.
 
 Files:
-	PlayerSkeleton - setup for implementing a player
-	JNEAT Network Converter - converts the file output of JNEAT into code that can be copied into the Network constructor directly
-	State - tetris simulation
-	TFrame - frame that draws the board
-	TLabel - drawing library
+PlayerSkeleton - setup for implementing a player
+JNEAT Network Converter - converts the file output of JNEAT into code that can be copied into the Network constructor directly
+State - tetris simulation
+TFrame - frame that draws the board
+TLabel - drawing library
 
 PlayerSkeleton:
 The main function plays a game automatically (with visualization).
@@ -27,8 +27,7 @@ It also keeps track of the number of lines cleared - accessed by getRowsCleared(
 
 draw() draws the board.
 drawNext() draws the next piece above the board
-clearNext() clears the drawing of the next piece so it can be drawn in a different
-	slot/orientation
+clearNext() clears the drawing of the next piece so it can be drawn in a different slot/orientation
 
 TFrame:
 This extends JFrame and is instantiated to draw a state.
