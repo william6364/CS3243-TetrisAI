@@ -195,7 +195,7 @@ public class PlayerSkeleton {
             }
             int hasHoles = 0;
             for (int r = 0; r < LOSING_ROW; r++) {
-                //4. Blockades
+                // 4. Blockades
                 inputs[4] += (double) (Integer.bitCount(hasHoles & rows[r]));
                 hasHoles |= (~rows[r]);
             }
@@ -212,7 +212,7 @@ public class PlayerSkeleton {
                 bestOutput = output;
             }
 
-            //Reset board for simulation of next move
+            // Reset board for simulation of next move
             for (int r = 0; r < LOSING_ROW; r++) {
                 rows[r] = currentRows[r];
             }
@@ -220,13 +220,14 @@ public class PlayerSkeleton {
                 top[c] = currentTop[c];
             }
         }
-        //If all moves are losing moves, play first move and then perform the best move
+        // If all moves are losing moves, play first move
         if (bestMove == -1) bestMove = 0;
+        // Perform the best move
         performMove(s.getNextPiece(), legalMoves[bestMove][0], legalMoves[bestMove][1]);
         return bestMove;
     }
 
-    //Reset the board
+    // Reset the board
     private void resetGame() {
         for (int i = 0; i < State.COLS; i++) {
             top[i] = -1;
@@ -245,7 +246,7 @@ public class PlayerSkeleton {
             s.draw();
             s.drawNext(0, 0);
             try {
-                Thread.sleep(0);
+                Thread.sleep(300);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -360,7 +361,8 @@ class Network {
 
 // Node class, the nodes of the neural network
 // Each node is either a NEURON or a SENSOR. If it's a sensor, it can be loaded with a value for output
-// If it's a neuron, it has a list of its incoming input signals Use an activation count to avoid flushing
+// If it's a neuron, it has a list of its incoming input signals
+// Use an activation count to avoid flushing
 class Node {
     // NODE CONSTANTS//
 
@@ -386,7 +388,7 @@ class Node {
     // The incoming activity before being processed
     double activesum = 0.0;
 
-    // The total activation entering in this Node
+    // The total activation entering in this Node based on its incoming links
     double activation = 0.0;
 
     // How many times this node is activated during activation of network
