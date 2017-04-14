@@ -29,9 +29,9 @@ public class PlayerSkeleton {
     private ArrayList<Integer> filledCoordinates = new ArrayList<>();
 
     // Tile specific feature values
-    private int wallHuggingCoefficient = 0;
-    private int floorHuggingCoefficient = 0;
-    private int flatteningCoefficient = 0;
+    private int wallContact = 0;
+    private int floorContact = 0;
+    private int pieceContact = 0;
 
     // Constructor
     public PlayerSkeleton() {
@@ -45,9 +45,9 @@ public class PlayerSkeleton {
     // Perform the move by placing piece of type pieceIndex with orientation rotationIndex and left column at leftPosition
     private int performMove(int pieceIndex, int rotationIndex, int leftPosition) {
         // Reset tile specific feature values
-        wallHuggingCoefficient = 0;
-        floorHuggingCoefficient = 0;
-        flatteningCoefficient = 0;
+        wallContact = 0;
+        floorContact = 0;
+        pieceContact = 0;
 
         // Height if the first column makes contact
         int height = top[leftPosition] - State.getpBottom()[pieceIndex][rotationIndex][0];
@@ -57,9 +57,9 @@ public class PlayerSkeleton {
             // Height if this column makes contact
             height = Math.max(height, top[leftPosition + c] - State.getpBottom()[pieceIndex][rotationIndex][c]);
 
-            // Floor-Hugging Coefficient
+            // Floor Contact
             if (top[leftPosition + c] == -1 && State.getpBottom()[pieceIndex][rotationIndex][c] == 0) {
-                floorHuggingCoefficient++;
+                floorContact++;
             }
         }
 
@@ -78,18 +78,18 @@ public class PlayerSkeleton {
             }
         }
 
-        // Wall-Hugging Coefficient
+        // Wall Contact
         // If piece hugs left wall
         if (leftPosition == 0) {
-            wallHuggingCoefficient += State.getpTop()[pieceIndex][rotationIndex][0] - State.getpBottom()[pieceIndex][rotationIndex][0];
+            wallContact += State.getpTop()[pieceIndex][rotationIndex][0] - State.getpBottom()[pieceIndex][rotationIndex][0];
         }
         // If piece hugs right wall
         if (leftPosition + State.getpWidth()[pieceIndex][rotationIndex] - 1 == State.COLS - 1) {
-            wallHuggingCoefficient += State.getpTop()[pieceIndex][rotationIndex][State.getpWidth()[pieceIndex][rotationIndex] - 1] -
+            wallContact += State.getpTop()[pieceIndex][rotationIndex][State.getpWidth()[pieceIndex][rotationIndex] - 1] -
                     State.getpBottom()[pieceIndex][rotationIndex][State.getpWidth()[pieceIndex][rotationIndex] - 1];
         }
 
-        // Flattening Coefficient
+        // Piece Contact
         for (int coordinate : filledCoordinates) {
             // Find original coordinate from integer
             int row = coordinate / State.COLS;
@@ -101,15 +101,15 @@ public class PlayerSkeleton {
             int down = (row - 1) * State.COLS + col;
             // left side
             if (col != 0 && !filledCoordinates.contains(left) && ((rows[row] & (1 << (col - 1))) > 0)) {
-                flatteningCoefficient++;
+                pieceContact++;
             }
             // right side
             if (col != State.COLS - 1 && !filledCoordinates.contains(right) && ((rows[row] & (1 << (col + 1))) > 0)) {
-                flatteningCoefficient++;
+                pieceContact++;
             }
             // down side
             if (row != 0 && !filledCoordinates.contains(down) && ((rows[row - 1] & (1 << col)) > 0)) {
-                flatteningCoefficient++;
+                pieceContact++;
             }
         }
 
@@ -172,7 +172,7 @@ public class PlayerSkeleton {
 
             // Reset feature values then proceed to calculate all the feature values
             for (int k = 0; k < numInputs; k++) inputs[k] = 0.0;
-
+            
             // 0. 2 Power of Lines Cleared.
             inputs[0] = (double) (1 << linesCleared);
             for (int c = 0; c < State.COLS; c++) {
@@ -186,7 +186,7 @@ public class PlayerSkeleton {
             }
             int hasBlocked = 0;
             for (int r = LOSING_ROW - 1; r >= 0; r--) {
-                // 3. Sum of heights of each block
+                // 3. Sum of Heights of each block
                 inputs[3] += (double) ((r + 1) * Integer.bitCount(rows[r]));
 
                 // 5. Number of Holes
@@ -200,10 +200,10 @@ public class PlayerSkeleton {
                 hasHoles |= (~rows[r]);
             }
 
-            // Tile Specific Features
-            inputs[6] = (double) (wallHuggingCoefficient);
-            inputs[7] = (double) (floorHuggingCoefficient);
-            inputs[8] = (double) (flatteningCoefficient);
+            // Piece-Specific Features
+            inputs[6] = (double) (wallContact);
+            inputs[7] = (double) (floorContact);
+            inputs[8] = (double) (pieceContact);
 
             // Get evaluation of board from neural network and update if move is better or if it is first legal move
             double output = network.calculateOutputs(inputs).get(0).getActivation();
